@@ -1,0 +1,22 @@
+{
+  "packageId": "com.markjun.quickdraft",
+  "host": "YOURUSERNAME.github.io",
+  "name": "Quick Draft Calculator",
+  "launcherName": "QuickDraft",
+  "display": "standalone",
+  "themeColor": "#0f1722",
+  "navigationColor": "#0f1722",
+  "backgroundColor": "#0f1722",
+  "enableNotifications": false,
+  "startUrl": "/Draft-Calculator/index.html",
+  "iconUrl": "https://YOURUSERNAME.github.io/Draft-Calculator/icon-512.png",
+  "maskableIconUrl": "https://YOURUSERNAME.github.io/Draft-Calculator/icon-maskable-512.png",
+  "webManifestUrl": "https://YOURUSERNAME.github.io/Draft-Calculator/manifest.webmanifest",
+  "fullScopeUrl": "https://YOURUSERNAME.github.io/Draft-Calculator/",
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "features": {"playBilling": {"enabled": true}},
+  "orientation": "default",
+  "fallbackType": "customtabs",
+  "signingKey": {"path": "./android.keystore", "alias": "quickdraft"}
+}

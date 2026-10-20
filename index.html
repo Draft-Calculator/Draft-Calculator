@@ -377,6 +377,9 @@ label,.tile>label{color:#9fb0c3;font-weight:500;justify-content:center;text-alig
 .tkpop button:hover,.tkpop button:active{background:#1f3a5c}.tkpop .tkn{padding:9px 12px;font-size:11px;color:var(--mut);max-width:220px}
 .itbar{display:none!important}
 h2 .inf{margin-right:auto;margin-left:6px;font-size:16px;color:var(--acc);line-height:1}
+.cmp{table-layout:fixed}.cmp th:first-child,.cmp td:first-child{width:34%}.cmp td{padding:5px 5px}.cmp td:first-child{white-space:normal;font-size:11.5px;padding-left:10px}.cmp td input,.cmp td .calc{width:100%;min-width:0;box-sizing:border-box}.cmp td .calc{padding-left:4px;padding-right:4px;font-size:13px}
+#capg .card table td,#capg .card table th{padding-left:2px;padding-right:2px}#capg .card table td input{min-width:0}
+#capg .cprm{width:100%;min-width:0;padding:2px 0;font-size:13px}
 </style></head><body>
 <div class="bar"><button id="menuBtn" aria-label="Menu">☰</button><h1 id="ttl">QUICK DRAFT CALCULATION</h1></div>
 <div id="drawer"><div class="bk"></div><nav><h3>Menu</h3><div class="vnm" id="vnm"></div><button data-v="ds" class="on">Draft Survey</button><button data-v="sp">Ship's Particulars</button><button data-v="hy">Hydrostatic Table</button><button data-v="cap">Capacity Plan</button><button data-v="dwc">Deadweight Calculation</button><button data-v="qd">Daily Draft Calculation</button><button data-v="vp">Voyage Draft Plan</button><button data-v="trm">Trimming</button><button data-v="cd">Cargo Distribution (Fill %)</button><button data-v="rc">Remaining Cargo</button><button data-v="tl">Tools</button><div class="dsep"></div><button id="slotBtn">💾 Saved files (in app)</button><button id="bkp">⬇ Backup all data</button><button id="aboutBtn">About &amp; Privacy</button><label for="rstIn" class="dlab">⬆ Restore backup</label><input type="file" id="rstIn" style="position:absolute;opacity:0;width:1px;height:1px"></nav></div>
@@ -1254,7 +1257,7 @@ const CAPG=[["hold","Cargo holds",["Hold No. 1","Hold No. 2","Hold No. 3","Hold 
 const sgb=c=>`<span class="sgn"><button type="button" class="pm" tabindex="-1">±</button><input class="${c}" type="text" inputmode="decimal"></span>`;
 const DEN={bal:1.025,fo:0.95,do:0.85,fw:1.0,gw:1.0};let TIDN=0;const newTid=()=>"t"+(++TIDN)+Math.random().toString(36).slice(2,5);
 const capRow=(n,tid)=>`<tr data-tid="${tid||newTid()}"><td><input class="cpn" list="tnames" value="${esc(n)}" placeholder="Tank"></td><td><input class="cpv" type="number" step="0.1"></td><td>${sgb("cpg")}</td><td><input class="cpk" type="number" step="0.01"></td><td>${sgb("cpt")}</td><td class="x"><button type="button" class="del cprm">×</button></td></tr>`;
-$("capg").innerHTML=CAPG.map(([k,t,n])=>`<div class="card" data-g="${k}"><h2>${t}</h2>${k=="hold"?'<div class="hint" style="padding:6px 12px 0">Weight capacity of a hold = volume ÷ stowage factor (set on the Cargo Distribution page).</div>':`<div class="dr s capd"><span>Density of ${t.toLowerCase().replace(" & others","")} (t/m³)</span><input class="cpd" type="number" step="0.001" value="${DEN[k]}" style="text-align:right"></div>`}<table class="t capt"><colgroup><col style="width:34%"><col style="width:17%"><col style="width:18%"><col style="width:14%"><col style="width:14%"><col style="width:3%"></colgroup><thead><tr><th>Tank</th><th>Vol m³</th><th>Mid G m</th><th>KG m</th><th>TCG m</th><th></th></tr></thead><tbody>${n.map(x=>capRow(x)).join("")}</tbody><tfoot><tr class="tot"><td>Total</td><td><div class="calc cv">0</div></td><td colspan="4" class="cwt"></td></tr></tfoot></table><div style="padding:3px 10px 8px"><button type="button" class="add sm capadd" style="margin:0;width:100%;padding:4px">+ Add tank</button></div></div>`).join("");
+$("capg").innerHTML=CAPG.map(([k,t,n])=>`<div class="card" data-g="${k}"><h2>${t}</h2>${k=="hold"?'<div class="hint" style="padding:6px 12px 0">Weight capacity of a hold = volume ÷ stowage factor (set on the Cargo Distribution page).</div>':`<div class="dr s capd"><span>Density of ${t.toLowerCase().replace(" & others","")} (t/m³)</span><input class="cpd" type="number" step="0.001" value="${DEN[k]}" style="text-align:right"></div>`}<table class="t capt"><colgroup><col style="width:32%"><col style="width:17%"><col style="width:18%"><col style="width:14%"><col style="width:14%"><col style="width:5%"></colgroup><thead><tr><th>Tank</th><th>Vol m³</th><th>Mid G m</th><th>KG m</th><th>TCG m</th><th></th></tr></thead><tbody>${n.map(x=>capRow(x)).join("")}</tbody><tfoot><tr class="tot"><td>Total</td><td><div class="calc cv">0</div></td><td colspan="4" class="cwt"></td></tr></tfoot></table><div style="padding:3px 10px 8px"><button type="button" class="add sm capadd" style="margin:0;width:100%;padding:4px">+ Add tank</button></div></div>`).join("");
 $("capg").addEventListener("click",e=>{const c=e.target.closest(".card");if(!c)return;if(e.target.classList.contains("capadd")){c.querySelector("tbody").insertAdjacentHTML("beforeend",capRow(""));syncG(null);calc();save()}else if(e.target.classList.contains("cprm")){e.target.closest("tr").remove();calc();save()}});
 const capKey=r=>r.closest(".card").dataset.g;
 const capDen=g=>{const e=document.querySelector(`#capg .card[data-g="${g}"] .cpd`);const d=e?parseFloat(e.value):NaN;return d>0?d:(DEN[g]||1)};
@@ -1625,7 +1628,7 @@ $("ttl").onclick=()=>{const v=CURV;if(!GUIDE[v])return;const gi=N.findIndex(t=>t
  pgOpen(TT[v]+" – guide",html||'<div class="abt">The guide of this page is not available.</div>',first>=0);
  $("pgnt").onclick=()=>{pgClose();cur={t:gi,s:first,edit:false};nRender();document.querySelector('#drawer [data-v="nt"]').click()}};
 const APPV="1.0.0";
-$("aboutBtn").onclick=()=>{dr.classList.remove("open");pgOpen("About",`<div class="abt"><h4>Quick Draft Calculator</h4><p>Version ${APPV}. A set of calculators for ship officers: quick draft, draft survey, voyage draft plan, deadweight, trimming, cargo distribution and ship's particulars with a hydrostatic table.</p><h4>Important</h4><p>This is a planning and cross-check tool. It does not replace the ship's approved loading instrument, the class-approved stability software, the stability booklet, or the judgement of the Master and the officers. Check the results against the ship's own data before relying on them. The results depend on the data you enter, including the hydrostatic table.</p><h4>Privacy</h4><p>All entries, vessels, tables, notes and records are kept only on this device. The app has no account, no advertising, no tracking and sends no data anywhere. A backup file is made only when you tap Backup. Clearing the app data or uninstalling the app removes your data, so make a backup regularly.</p><h4>Units</h4><p>Metres, tonnes, nautical miles, knots and degrees Celsius. Mid G: − forward, + aft of midship. Trim: + by the stern. ZD: east −, west +.</p></div>`,false)};
+$("aboutBtn").onclick=()=>{dr.classList.remove("open");pgOpen("About",`<div class="abt"><h4>Quick Draft Calculator</h4><p>Version ${APPV}. A set of calculators for ship officers: quick draft, draft survey, voyage draft plan, deadweight, trimming, cargo distribution and ship's particulars with a hydrostatic table.</p><h4>Important</h4><p>This is a planning and cross-check tool. It does not replace the ship's approved loading instrument, the class-approved stability software, the stability booklet, or the judgement of the Master and the officers. Check the results against the ship's own data before relying on them. The results depend on the data you enter, including the hydrostatic table.</p><h4>Privacy</h4><p>All entries, vessels, tables, notes and records are kept only on this device. The app has no account, no advertising, no tracking and sends no data anywhere. A backup file is made only when you tap Backup. Clearing the app data or uninstalling the app removes your data, so make a backup regularly.</p><h4>Licence</h4><p>The app is free to use for 2 months. After that a single one-time payment unlocks it for good. There is no subscription. Payment is handled by Google Play; the app never sees your card or account details.</p><h4>Units</h4><p>Metres, tonnes, nautical miles, knots and degrees Celsius. Mid G: − forward, + aft of midship. Trim: + by the stern. ZD: east −, west +.</p></div>`,false)};
 ["sp","qd","ds","vp","trm","cd","dwc","cap","rc","tl"].forEach(i=>{const e=$(i);if(e)e.classList.add("col2")});
 qdLink();vpLink();restore();QREADY=true;READY=true;
 document.addEventListener("input",e=>{const t=e.target;if(t.matches&&t.matches("input[inputmode=decimal]")){const c=t.value.replace(",",".").replace(/[^0-9.\-]/g,"");if(c!==t.value)t.value=c}});
@@ -1652,4 +1655,54 @@ h.onclick=function(){c.classList.toggle("cl");wr(k,c.classList.contains("cl")?"1
 })}catch(e){}})()</script>
 <script>(function(){try{var d=document.getElementById("ds");if(!d)return;var h=[].slice.call(d.querySelectorAll(":scope>.card>h2")).filter(function(x){return/^Formulas used/.test(x.textContent.trim())})[0];if(h)d.appendChild(h.parentNode)}catch(e){}})()</script>
 <script>try{if("serviceWorker"in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js")}catch(e){}</script>
+<style>
+#licWall{position:fixed;inset:0;z-index:99999;background:#0f1722;display:none;align-items:center;justify-content:center;padding:20px;overflow:auto}
+#licWall.on{display:flex}
+#licWall .lb{max-width:420px;width:100%;background:#162130;border:1px solid #26364a;border-radius:16px;padding:22px 18px;text-align:center;color:#e8eef6;font:14px/1.5 system-ui,Arial,sans-serif}
+#licWall h2{margin:0 0 8px;font-size:19px;color:#e8eef6}
+#licWall p{margin:0 0 14px;color:#9fb0c4;font-size:13px}
+#licWall .pr{font-size:30px;font-weight:800;color:#fff;margin:4px 0 2px}
+#licWall button{display:block;width:100%;padding:13px;border-radius:10px;border:1px solid #26364a;background:#1d2b3d;color:#e8eef6;font-size:14px;font-weight:600;margin-top:10px;cursor:pointer}
+#licWall button.pri{background:#4da3ff;border-color:#4da3ff;color:#06121f}
+#licWall .lm{min-height:18px;margin-top:10px;font-size:12px;color:#e8a91f}
+#licWall a{color:#4da3ff;font-size:12px}
+#licBox{margin:8px 12px;padding:10px 12px;border:1px solid #26364a;border-radius:10px;font-size:12px;color:#9fb0c4;text-align:center}
+#licBox b{color:#e8eef6}#licBox button{margin-top:8px;width:100%;padding:8px;border-radius:8px;border:0;background:#4da3ff;color:#06121f;font-weight:700;font-size:12.5px;cursor:pointer}
+#licToast{position:fixed;left:12px;right:12px;bottom:76px;z-index:9998;background:#162130;border:1px solid #e8a91f;color:#e8eef6;border-radius:10px;padding:10px 12px;font-size:12.5px;text-align:center;display:none}
+</style>
+<div id="licWall" role="dialog" aria-modal="true"><div class="lb"><h2>Your free trial has ended</h2>
+<p>Quick Draft Calculator is free for 2 months. To keep using it, unlock it once. No subscription, no ads, yours for life.</p>
+<div class="pr" id="licPrice">₱200</div><p style="margin-bottom:4px">one-time payment</p>
+<button class="pri" id="licBuy">Unlock for ₱200</button><button id="licRestore">Restore purchase</button><button id="licBk">Back up my data</button>
+<div class="lm" id="licMsg"></div><a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a></div></div>
+<div id="licToast"></div>
+<script>(function(){
+var SKU="lifetime_unlock",TRIAL=60,DAY=864e5,K="qdLic",st={},$=function(i){return document.getElementById(i)};
+try{st=JSON.parse(localStorage.getItem(K)||"{}")||{}}catch(e){st={}}
+var now=Math.max(Date.now(),st.last||0);if(!st.start)st.start=now;st.last=now;sv();
+function sv(){try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
+function left(){now=Math.max(Date.now(),st.last||0);st.last=now;return Math.ceil((st.start+TRIAL*DAY-now)/DAY)}
+function msg(t){$("licMsg").textContent=t||""}
+var price="₱200";
+function ui(){var d=left(),paid=!!st.paid,lock=!paid&&d<=0,box=$("licBox");
+ $("licWall").classList.toggle("on",lock);document.documentElement.style.overflow=lock?"hidden":"";
+ $("licBuy").textContent="Unlock for "+price;$("licPrice").textContent=price;
+ if(box)box.innerHTML=paid?"✓ <b>Unlocked</b> – thank you for your support":"Free trial: <b>"+Math.max(d,0)+" day"+(d==1?"":"s")+" left</b><br>Then a one-time "+price+" unlock.<button id=\"licOpen\" type=\"button\">Unlock now</button>";
+ var o=$("licOpen");if(o)o.onclick=buy;
+ if(!paid&&d>0&&d<=7){try{var t=new Date().toDateString();if(st.toast!==t){st.toast=t;sv();var e=$("licToast");e.textContent="Free trial ends in "+d+" day"+(d==1?"":"s")+". Unlock once for "+price+" in the menu.";e.style.display="block";setTimeout(function(){e.style.display="none"},7000)}}catch(x){}}}
+async function svc(){try{if(!window.getDigitalGoodsService)return null;return await window.getDigitalGoodsService("https://play.google.com/billing")}catch(e){return null}}
+async function verify(quiet){var s=await svc();if(!s){if(!quiet)msg("Purchases can be restored in the Google Play version of the app.");return false}
+ try{var ps=await s.listPurchases(),ok=ps.some(function(p){return p.itemId===SKU});st.paid=ok;sv();ui();if(!quiet)msg(ok?"Purchase restored.":"No purchase found on this Google account.");return ok}catch(e){if(!quiet)msg("Could not reach Google Play. Check your connection.");return false}}
+async function getPrice(){var s=await svc();if(!s)return;try{var d=await s.getDetails([SKU]);if(d&&d[0]&&d[0].price){var p=d[0].price;price=new Intl.NumberFormat(undefined,{style:"currency",currency:p.currency,minimumFractionDigits:+p.value%1?2:0}).format(+p.value);ui()}}catch(e){}}
+async function buy(){msg("");var s=await svc();if(!s){msg("To unlock, open the app from Google Play.");return}
+ try{var d=await s.getDetails([SKU]);if(!d||!d[0]){msg("The unlock is not available right now. Try again later.");return}
+  var p=d[0].price,req=new PaymentRequest([{supportedMethods:"https://play.google.com/billing",data:{sku:SKU}}],{total:{label:"Total",amount:{currency:p.currency,value:p.value}}}),res=await req.show(),tok=res.details&&res.details.purchaseToken;
+  if(tok)await s.acknowledge(tok,"onetime");await res.complete("success");st.paid=true;sv();ui();msg("")}
+ catch(e){msg(e&&e.name==="AbortError"?"Purchase cancelled.":"The purchase did not complete. You have not been charged.")}}
+$("licBuy").onclick=buy;$("licRestore").onclick=function(){verify(false)};$("licBk").onclick=function(){var b=$("bkp");if(b)b.click()};
+var nav=document.querySelector("#drawer nav"),ds=nav&&nav.querySelector(".dsep");if(nav){var b=document.createElement("div");b.id="licBox";nav.insertBefore(b,ds||nav.firstChild)}
+ui();getPrice();verify(true);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){ui();verify(true)}});setInterval(ui,6e4);
+window.__lic=function(){return{start:st.start,paid:!!st.paid,left:left()}};
+})();</script>
 </body></html>
