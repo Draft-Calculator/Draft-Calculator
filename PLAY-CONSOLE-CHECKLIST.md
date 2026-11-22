@@ -34,3 +34,16 @@
 - After day 60 the app is locked behind an unlock screen (price shown from Google Play, ₱200). Users can still back up their data from that screen.
 - Unlock is verified with Google Play on each start; a refund removes it. Reinstalling = "Restore purchase".
 - Limit: the trial clock is local. Clearing app data or reinstalling restarts the 60 days. That cannot be prevented without your own server.
+
+## Automatic Play release (GitHub Actions)
+The web app updates by itself (the Play app loads the live site). The Play **version number** changes only with a new bundle, built by the workflow `Play release`.
+
+One-time setup (repo Settings > Secrets and variables > Actions > New repository secret):
+- `ANDROID_KEYSTORE_BASE64` – your upload keystore (the one from PWABuilder/Bubblewrap), converted with `base64 -w0 android.keystore`
+- `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` – as shown in the PWABuilder signing info
+- `PLAY_SERVICE_ACCOUNT_JSON` – Google Cloud service account key (JSON). Play Console > Setup > API access: link a Cloud project, create the service account, then grant it "Release apps to testing tracks" (and production when ready).
+
+Run: Actions > Play release > Run workflow.
+1. First run with **upload = false**: builds only; download the `quick-draft-aab` artifact to confirm it works.
+2. Then **upload = true**, track `internal`; promote to production in Play Console, or choose `production` once testing is done.
+Version code = run number + 100 (always rising). Raise the +100 in the workflow if Play ever says the code is already used.
