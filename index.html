@@ -824,9 +824,11 @@ put("pt",both?pt:null,3,"Trim = Aft draft − Fwd draft",`Trim = ${f3(pa)} − $
 put("pmean",both?pmean:null,3,"Mean draft = (Fwd + Aft) ÷ 2",`Mean = (${f3(pf)} + ${f3(pa)}) ÷ 2 = ${f3(pmean)} m`);
 let dT=null,tp0=null,mt0=null,lf0=null;
 if(both){dT=itp(pmean,"disp");tp0=itp(pmean,"tpc");mt0=itp(pmean,"mtc");lf0=itp(pmean,"lcf")}
-const pd=dT!=null?dT*k0:null,ptpc=tp0!=null?tp0*k0:null,pmtc=mt0!=null?mt0*k0:null;
+const tcorr=(mean,tr,Dtab,tpcT)=>{if(Dtab==null||tpcT==null||!(L>0))return{c1:0,c2:0,ok:false};const lc=lcfA(itp(mean,"lcf"),L),m1=itp(mean+.5,"mtc"),m2=itp(mean-.5,"mtc");if(lc==null||m1==null||m2==null)return{c1:0,c2:0,ok:false};return{c1:tr*lc*tpcT*100/L,c2:50*tr*tr*(m1-m2)/L,ok:true}};
+const pTC=dT!=null?tcorr(pmean,pt,dT,tp0):{c1:0,c2:0,ok:false};
+const pd=dT!=null?(dT+pTC.c1+pTC.c2)*k0:null,ptpc=tp0!=null?tp0*k0:null,pmtc=mt0!=null?mt0*k0:null;
 const nv=v=>v==null?"n/a":v.toFixed(2);
-put("pd",pd,1,"Displ. = Table displ. at mean draft × (S.G. present ÷ S.G. table)",pd==null?need:`Table displ. at ${f3(pmean)} m = ${dT.toFixed(1)} t\nΔ = ${dT.toFixed(1)} × (${sg0} ÷ ${sgT}) = ${pd.toFixed(1)} t`);
+put("pd",pd,1,"Displ. = (Table displ. at mean draft + 1st trim corr. + 2nd trim corr.) × (S.G. present ÷ S.G. table)\n1st = Trim × LCF × TPC × 100 ÷ LPP;  2nd = 50 × Trim² × ΔMTC ÷ LPP",pd==null?need:`Table displ. at ${f3(pmean)} m = ${dT.toFixed(1)} t\n1st trim corr. = ${pTC.c1.toFixed(1)} t, 2nd trim corr. = ${pTC.c2.toFixed(1)} t (trim ${f3(pt)} m)\nΔ = (${dT.toFixed(1)} + ${pTC.c1.toFixed(1)} + ${pTC.c2.toFixed(1)}) × (${sg0} ÷ ${sgT}) = ${pd.toFixed(1)} t`);
 {const LSq=val($("spLS"));put("pdw",pd==null||!(LSq>0)?null:pd-LSq,1,"Deadweight = Displacement − Lightship",pd==null||!(LSq>0)?"Needs the displacement and the lightship (Ship's Particulars)":`Δ ${pd.toFixed(1)} − lightship ${LSq.toFixed(1)} = ${(pd-LSq).toFixed(1)} t`)}
 put("ptpc",ptpc,2,"TPC = Table TPC at mean draft × (S.G. present ÷ S.G. table)",ptpc==null?need:`${nv(tp0)} × (${sg0} ÷ ${sgT}) = ${ptpc.toFixed(2)} t/cm`);
 put("pmtc",pmtc,2,"MTC = Table MTC at mean draft × (S.G. present ÷ S.G. table)",pmtc==null?need:`${nv(mt0)} × (${sg0} ÷ ${sgT}) = ${pmtc.toFixed(2)} t·m/cm`);
@@ -870,11 +872,11 @@ $("wnote").textContent=(miss?"Corrections need the hydrostatic table, Fwd & Aft 
 /* Result */
 const done=f1!=null&&miss===0;
 const nf=done?f1+GF:null,na=done?a1+GA:null,nm=done&&m1!=null?m1+(GF+GA)/2:null,nt=done?na-nf:null,nmean=done?(nf+na)/2:null;
-const dN=done?itp(nmean,"disp"):null,nd=dN!=null?dN*k1:null,ndSum=pd!=null?pd+GW:null;
+const dN=done?itp(nmean,"disp"):null,nTC=dN!=null?tcorr(nmean,nt,dN,itp(nmean,"tpc")):{c1:0,c2:0},nd=dN!=null?(dN+nTC.c1+nTC.c2)*k1:null,ndSum=pd!=null?pd+GW:null;
 const nn=done?[itp(nmean,"tpc"),itp(nmean,"mtc"),itp(nmean,"lcf")]:[null,null,null];
 const ntpc=nn[0]!=null?nn[0]*k1:null,nmtc=nn[1]!=null?nn[1]*k1:null,nlf=nn[2];
 const chk=done&&ndSum!=null?itp(ndSum*sgT/sg1,"d","disp"):null;
-put("nd",nd,1,"New Δ = Table displ. at new mean draft × (new S.G. ÷ S.G. table)",nd==null?"Needs the hydrostatic table, drafts and LPP":`Table displ. at ${f3(nmean)} m = ${dN.toFixed(1)} t\nΔ = ${dN.toFixed(1)} × (${sg1} ÷ ${sgT}) = ${nd.toFixed(1)} t\nCheck: present Δ + Σ weight = ${pd.toFixed(1)} + (${GW.toFixed(2)}) = ${ndSum.toFixed(1)} t  (difference ${(nd-ndSum).toFixed(1)} t)`);
+put("nd",nd,1,"New Δ = (Table displ. at new mean draft + 1st + 2nd trim corr.) × (new S.G. ÷ S.G. table)",nd==null?"Needs the hydrostatic table, drafts and LPP":`Table displ. at ${f3(nmean)} m = ${dN.toFixed(1)} t\nTrim corr. 1st = ${nTC.c1.toFixed(1)} t, 2nd = ${nTC.c2.toFixed(1)} t (trim ${f3(nt)} m)\nΔ = (${dN.toFixed(1)} + ${nTC.c1.toFixed(1)} + ${nTC.c2.toFixed(1)}) × (${sg1} ÷ ${sgT}) = ${nd.toFixed(1)} t\nCheck: present Δ + Σ weight = ${pd.toFixed(1)} + (${GW.toFixed(2)}) = ${ndSum.toFixed(1)} t  (difference ${(nd-ndSum).toFixed(1)} t)`);
 {const LSq=val($("spLS"));put("ndw",nd==null||!(LSq>0)?null:nd-LSq,1,"Deadweight = Displacement − Lightship",nd==null||!(LSq>0)?"Needs the new displacement and the lightship (Ship's Particulars)":`Δ ${nd.toFixed(1)} − lightship ${LSq.toFixed(1)} = ${(nd-LSq).toFixed(1)} t`)}
 put("nf",nf,3,"New Fwd = Fwd after density + Σ Fwd corr",done?`${f3(f1)} + (${f3(GF)}) = ${f3(nf)}`:"Needs the hydrostatic table, drafts, LPP and weight corrections");
 put("na",na,3,"New Aft = Aft after density + Σ Aft corr",done?`${f3(a1)} + (${f3(GA)}) = ${f3(na)}`:"Needs the hydrostatic table, drafts, LPP and weight corrections");
