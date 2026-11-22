@@ -1861,7 +1861,11 @@ cs.forEach(function(c){var h=c.firstElementChild,k=key(p,h),v=rd(k);c.classList.
 h.onclick=function(){c.classList.toggle("cl");wr(k,c.classList.contains("cl")?"1":"0")}});
 })}catch(e){}})()</script>
 <script>(function(){try{var d=document.getElementById("ds");if(!d)return;var h=[].slice.call(d.querySelectorAll(":scope>.card>h2")).filter(function(x){return/^Formulas used/.test(x.textContent.trim())})[0];if(h)d.appendChild(h.parentNode)}catch(e){}})()</script>
-<script>try{if("serviceWorker"in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js")}catch(e){}</script>
+<script>try{if("serviceWorker"in navigator&&/^https?:/.test(location.protocol)){
+var hadCtl=!!navigator.serviceWorker.controller,reloaded=false;
+function updBar(){if(document.getElementById("updBar"))return;var d=document.createElement("div");d.id="updBar";d.style.cssText="position:fixed;left:10px;right:10px;bottom:76px;z-index:99999;background:#1d6fa8;color:#fff;border-radius:12px;padding:11px 14px;font:600 14px system-ui,sans-serif;display:flex;gap:10px;align-items:center;box-shadow:0 4px 18px #0008";d.innerHTML='<span style="flex:1">New version ready</span><button style="background:#fff;color:#1d6fa8;border:0;border-radius:8px;padding:8px 12px;font-weight:700">Update now</button>';d.querySelector("button").onclick=function(){location.reload()};document.body.appendChild(d)}
+navigator.serviceWorker.addEventListener("controllerchange",function(){if(!hadCtl){hadCtl=true;return}if(reloaded)return;reloaded=true;try{if(typeof save==="function")save()}catch(e){}updBar()});
+navigator.serviceWorker.register("sw.js").then(function(r){var chk=function(){try{r.update()}catch(e){}};document.addEventListener("visibilitychange",function(){if(!document.hidden){chk();if(reloaded&&!document.getElementById("updBar"))location.reload()}});setInterval(chk,36e5);chk()}).catch(function(){})}}catch(e){}</script>
 <style>
 #tourO{position:fixed;inset:0;z-index:9000;display:none;pointer-events:none}
 #tourO.on{display:block}
