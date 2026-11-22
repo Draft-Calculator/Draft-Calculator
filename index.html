@@ -1169,12 +1169,14 @@ const map={};oth.forEach(h=>{const k=h.n.value.trim().toLowerCase();if(k&&!(k in
 oth.forEach(h=>{const k=h.n.value.trim().toLowerCase();if(!k)return;if(k in capM){h.g.value=capM[k];h.g.readOnly=true;h.g.classList.add("ro");h.g.placeholder="auto"}else{h.g.readOnly=false;h.g.classList.remove("ro");h.g.placeholder="";if(k in map)h.g.value=map[k]}})}
 const vtanks=id=>[...$(id).querySelectorAll("tr")].map(r=>{const i=r.querySelectorAll("input"),x=parseFloat(i[1].value);const nm=i[0].value||"Tank";return{n:nm,x:isNaN(x)?null:x,q:Math.max(0,val(i[2])),cap:FREE?0:(capMap()[nm.trim().toLowerCase()]||0)}});
 const drain=(tk,tot)=>{if(tot<0&&tk.length){let g=-tot;const rows=tk.map((t,i)=>{const room=t.cap>0?Math.max(t.cap-t.q,0):(i?0:Infinity),add=Math.min(room,g);g-=add;return{...t,take:-add,rob:t.q+add}});return{rows,short:0}}let left=tot;const rows=tk.map(t=>{const take=Math.min(t.q,Math.max(left,0));left-=take;return{...t,take,rob:t.q-take}});return{rows,short:Math.max(left,0)}};
+function tcT(mean,tr,L){const tp=itp(mean,"tpc"),lc=lcfA(itp(mean,"lcf"),L),a=itp(mean+.5,"mtc"),b=itp(mean-.5,"mtc");if(tp==null||lc==null||a==null||b==null||!(L>0))return 0;return tr*lc*tp*100/L+50*tr*tr*(a-b)/L}
 function proj(F0,A0,Mid0,r0,r1,W,L){const sgT=val($("tsg"))||1.025,m0=(F0+A0)/2,dT=itp(m0,"disp");if(dT==null)return null;
-const M1=itp(dT*r0/r1,"d","disp");if(M1==null)return null;const dM=M1-m0,F1=F0+dM,A1=A0+dM;let Mf=M1,GF=0,GA=0,tpc,mtc,lf;
+const t0=A0-F0,Dq=(dT+tcT(m0,t0,L))*r0/r1;let M1=itp(Dq,"d","disp");if(M1==null)return null;for(let i=0;i<4;i++){const n=itp(Dq-tcT(M1,t0,L),"d","disp");if(n==null)break;M1=n}
+const dM=M1-m0,F1=F0+dM,A1=A0+dM;let Mf=M1,GF=0,GA=0,tpc,mtc,lf;
 for(let it=0;it<2;it++){const mid=it?(M1+Mf)/2:M1;tpc=itp(mid,"tpc")*r1/sgT;mtc=itp(mid,"mtc")*r1/sgT;lf=lcfA(itp(mid,"lcf"),L);if(!(tpc>0&&mtc>0)||lf==null)return null;
 GF=0;GA=0;W.forEach(([w,x])=>{const sk=w/tpc/100,t=w*(x-lf)/mtc/100;GF+=sk-t*(L/2+lf)/L;GA+=sk+t*(L/2-lf)/L});Mf=(F1+GF+A1+GA)/2}
 const F=F1+GF,A=A1+GA,d=itp(Mf,"disp");if(d==null)return null;
-return{F,A,Mid:Mid0!=null?Mid0+dM+(GF+GA)/2:(F+A)/2,M:(F+A)/2,trim:A-F,disp:d*r1/sgT,dM,GF,GA,tpc,mtc,lf}}
+return{F,A,Mid:Mid0!=null?Mid0+dM+(GF+GA)/2:(F+A)/2,M:(F+A)/2,trim:A-F,disp:(d+tcT(Mf,A-F,L))*r1/sgT,dM,GF,GA,tpc,mtc,lf}}
 function vchart(R){const W=320,Hh=150,pl=34,pr=8,pt=10,pb=22,ys=R.flatMap(r=>[r.F,r.A]);let lo=Math.min(...ys),hi=Math.max(...ys);const pad=(hi-lo)*.15||.1;lo-=pad;hi+=pad;
 const X=i=>pl+(R.length>1?i*(W-pl-pr)/(R.length-1):(W-pl-pr)/2),Y=v=>pt+(hi-v)*(Hh-pt-pb)/(hi-lo);
 const ln=(k,c,dash)=>`<polyline fill="none" style="stroke:${c}" stroke-width="2" ${dash?'stroke-dasharray="4 3"':""} points="${R.map((r,i)=>X(i).toFixed(1)+","+Y(r[k]).toFixed(1)).join(" ")}"/>`+R.map((r,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(r[k]).toFixed(1)}" r="2.8" style="fill:${c}"/>`).join("");
@@ -1201,7 +1203,7 @@ const R=[],cards=[];let bad=0;
 rows.forEach((r,idx)=>{const e=r.e,c=cons(e),a=drain(tF,c.fo),b=drain(tD,c.ds),w=drain(tW,c.fw),all=[...a.rows,...b.rows,...w.rows];
 const tm=new Date(depC.getTime()+e*36e5+(r.k=="arr"?zd:0)),dn=Math.round((new Date(tm.getFullYear(),tm.getMonth(),tm.getDate())-d0)/864e5)+1;
 const dens=r.k=="dep"?r0:r.k=="arr"?rA:rs,noX=[],items=[];all.forEach(t=>{if(t.take!==0){if(t.x==null)noX.push(t);else items.push({n:t.n,w:-t.take,x:t.x})}});bal.forEach(b=>{if(r.k!="dep"&&b.e<=e&&b.q!==0){if(b.x==null)noX.push(b);else items.push({n:b.n+" (ballast)",w:b.q,x:b.x})}});const W=items.map(i=>[i.w,i.x]);
-let res;if(r.k=="dep"){const d=itp((F0+A0)/2,"disp");res={F:F0,A:A0,Mid:Mid0!=null?Mid0:(F0+A0)/2,M:(F0+A0)/2,trim:A0-F0,disp:d!=null?d*r0/sgT:null}}else res=proj(F0,A0,Mid0,r0,dens,W,L);
+let res;if(r.k=="dep"){const d=itp((F0+A0)/2,"disp");res={F:F0,A:A0,Mid:Mid0!=null?Mid0:(F0+A0)/2,M:(F0+A0)/2,trim:A0-F0,disp:d!=null?(d+tcT((F0+A0)/2,A0-F0,L))*r0/sgT:null}}else res=proj(F0,A0,Mid0,r0,dens,W,L);
 const key="vp"+idx,lbl=r.k=="dep"?"Dep":r.k=="arr"?"Arr":"D"+dn,title=r.k=="dep"?"Departure (berth)":r.k=="arr"?"Arrival (berth)":"Day "+dn;
 const warn=[];if(a.short>0)warn.push(`FO tanks short by ${a.short.toFixed(1)} t`);if(b.short>0)warn.push(`DO tanks short by ${b.short.toFixed(1)} t`);if(w.short>0)warn.push(`FW tanks short by ${w.short.toFixed(1)} t`);if(noX.length)warn.push("Mid G missing for "+noX.map(t=>t.n).join(", "));
 const sum=x=>x.rows.reduce((s,t)=>s+t.rob,0);
@@ -1668,8 +1670,8 @@ if(!(L>0)){$("rcMsg").innerHTML=WM("LPP is needed. Enter it in Ship's Particular
 const M0=(F+A)/2,h0=hydAt(M0);if(!h0){$("rcMsg").innerHTML=WM("The present drafts are outside the hydrostatic table, or there is no table.");return}
 let Mt=lim,h;for(let i=0;i<8;i++){h=hydAt(Mt);if(!h)break;const oF=-tf*(L/2+h.lcf)/L,oA=tf*(L/2-h.lcf)/L;Mt=lim-Math.max(oF,oA)}
 const hh=hydAt(Mt);if(!hh){$("rcMsg").innerHTML=WM("The limit draft is outside the hydrostatic table.");return}
-const mt0=A-F;let Mx=F+mt0*(L/2+h0.lcf)/L;const D0=h0.d*d0/sgT,D1=hh.d*d1/sgT,C=D1-D0-o;
-const oF=-tf*(L/2+hh.lcf)/L,oA=tf*(L/2-hh.lcf)/L;
+const mt0=A-F;const oF=-tf*(L/2+hh.lcf)/L,oA=tf*(L/2-hh.lcf)/L,Mm=Mt+(oF+oA)/2,hm=hydAt(Mm);if(!hm){$("rcMsg").innerHTML=WM("The limit draft is outside the hydrostatic table.");return}
+const D0=(h0.d+tcT(M0,mt0,L))*d0/sgT,D1=(hm.d+tcT(Mm,tf,L))*d1/sgT,C=D1-D0-o;
 $("rcC").textContent=C.toFixed(0);$("rcDN").textContent=D1.toFixed(0);$("rcFF").textContent=(Mt+oF).toFixed(3);$("rcFA").textContent=(Mt+oA).toFixed(3);$("rcFM").textContent=((Mt+oF+Mt+oA)/2).toFixed(3);
 let m=[];if(C>=0)m.push(OK(`You can load ${C.toFixed(0)} t more before the limit ${lim} m is reached (final trim ${tf} m).`));else m.push(WM(`The ship is already ${(-C).toFixed(0)} t over the limit. Discharge at least ${(-C).toFixed(0)} t.`));
 if(Math.abs(d1-d0)>.0001)m.push(`<div class="hint">Density change ${d0} → ${d1} is included (dock water allowance).</div>`);
@@ -1940,13 +1942,23 @@ $("licBuy").onclick=buy;$("licRestore").onclick=function(){verify(false)};$("lic
 var nav=document.querySelector("#drawer nav"),ds=nav&&nav.querySelector(".dsep");if(nav){var b=document.createElement("div");b.id="licBox";nav.insertBefore(b,ds||nav.firstChild)}
 
 /* ---- refer a friend (v1: link + reward code, no server) ---- */
-function hs(t){var h=2166136261;for(var i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36).toUpperCase().padStart(6,"0").slice(0,6)}
+function h1(t,sd){var h=sd;for(var i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);h^=h>>>13}return(h>>>0).toString(36).toUpperCase().padStart(5,"0").slice(-5)}
+function hs(t){t="qdc.ref.v2|"+t;return(h1(t,2166136261)+h1(t.split("").reverse().join(""),374761393)).slice(0,8)}
+var MAXB=150;
 if(!st.id){var A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",x="";for(var i=0;i<6;i++)x+=A[Math.floor(Math.random()*A.length)];st.id=x;sv()}
-try{var q=new URLSearchParams(location.search).get("ref");if(q&&/^[A-Z2-9]{6}$/.test(q)&&!st.refd&&q!==st.id&&!st.paid){st.refd=q;st.bonus=(st.bonus||0)+30;sv();setTimeout(function(){var e=$("licToast");if(e){e.textContent="Welcome! You got 1 extra free month from a friend's invitation.";e.style.display="block";setTimeout(function(){e.style.display="none"},7000)}ui();refUI()},600)}}catch(e){}
+try{var q=new URLSearchParams(location.search).get("ref");if(q&&/^[A-Z2-9]{6}$/.test(q)&&!st.refd&&q!==st.id&&!st.paid){st.refd=q;st.bonus=Math.min((st.bonus||0)+30,MAXB);sv();setTimeout(function(){var e=$("licToast");if(e){e.textContent="Welcome! You got 1 extra free month from a friend's invitation.";e.style.display="block";setTimeout(function(){e.style.display="none"},7000)}ui();refUI()},600)}}catch(e){}
 function refUI(){var b=$("refBox");if(!b)return;var link=location.origin+location.pathname+"?ref="+st.id;
- b.innerHTML='<details><summary>Refer a friend: +1 month each</summary><div class="rf"><p>Share your link. Your friend gets <b>1 extra month free</b> (on top of the 2 months). When your friend sends you their thank-you code, enter it below and you get <b>1 extra month</b> too.</p><button type="button" id="refShare">Share my link</button>'+(st.refd?'<p>Your thank-you code for your friend: <b>'+st.id+'-'+hs(st.refd+"|"+st.id)+'</b></p>':"")+'<div class="rr"><input id="refIn" placeholder="Friend\'s thank-you code" autocapitalize="characters"><button type="button" id="refGo">Add</button></div><div class="lm" id="refMsg"></div><p class="rn">Bonus months so far: '+((st.bonus||0)/30)+'</p></div></details>';
+ b.innerHTML='<details><summary>Refer a friend: +1 month each</summary><div class="rf"><p>Share your link. Your friend gets <b>1 extra month free</b> (on top of the 2 months). When your friend sends you their thank-you code, enter it below and you get <b>1 extra month</b> too.</p><button type="button" id="refShare">Share my link</button>'+(st.refd?'<p>Your thank-you code for your friend: <b>'+st.id+'-'+hs(st.refd+"|"+st.id)+'</b></p>':"")+'<div class="rr"><input id="refIn" placeholder="Friend\'s thank-you code" autocapitalize="characters"><button type="button" id="refGo">Add</button></div><div class="lm" id="refMsg"></div><p class="rn">Bonus months so far (maximum 5): '+((st.bonus||0)/30)+'</p></div></details>';
  $("refShare").onclick=function(){var t="Try Quick Draft Calculator for ship officers. You get an extra free month with my link: "+link;if(navigator.share)navigator.share({title:"Quick Draft Calculator",text:t,url:link}).catch(function(){});else if(navigator.clipboard){navigator.clipboard.writeText(t);$("refMsg").textContent="Link copied."}else $("refMsg").textContent=link};
- $("refGo").onclick=function(){var v=($("refIn").value||"").trim().toUpperCase().split("-"),m=$("refMsg");st.used=st.used||[];if(v.length!=2||!/^[A-Z2-9]{6}$/.test(v[0])||v[0]===st.id){m.textContent="That code is not valid.";return}if(st.used.indexOf(v[0])>-1){m.textContent="That friend was already counted.";return}if(hs(st.id+"|"+v[0])!==hs(st.id+"|"+v[0])||v[1]!==hs(st.id+"|"+v[0])){m.textContent="That code is not valid.";return}st.used.push(v[0]);st.bonus=(st.bonus||0)+30;sv();ui();refUI();$("refMsg").textContent="+1 month added. Thank you!"}}
+ $("refGo").onclick=function(){var m=$("refMsg"),nw=Date.now();st.used=st.used||[];st.fails=(st.fails||[]).filter(function(t){return nw-t<36e5});
+ if(st.fails.length>=5){m.textContent="Too many wrong codes. Try again in an hour.";return}
+ var v=($("refIn").value||"").trim().toUpperCase().split("-");
+ function bad(msg){st.fails.push(nw);sv();m.textContent=msg||"That code is not valid."}
+ if(v.length!=2||!/^[A-Z2-9]{6}$/.test(v[0])||v[0]===st.id)return bad();
+ if(st.used.indexOf(v[0])>-1){m.textContent="That friend was already counted.";return}
+ if(v[1]!==hs(st.id+"|"+v[0]))return bad();
+ if((st.bonus||0)>=MAXB){m.textContent="You have reached the maximum of "+MAXB/30+" bonus months.";return}
+ st.used.push(v[0]);st.bonus=Math.min((st.bonus||0)+30,MAXB);sv();ui();refUI();$("refMsg").textContent="+1 month added. Thank you!"}}
 var rb=document.createElement("div");rb.id="refBox";if(nav)nav.insertBefore(rb,$("licBox").nextSibling);
 ui();refUI();getPrice();verify(true);
 document.addEventListener("visibilitychange",function(){if(!document.hidden){ui();verify(true)}});setInterval(ui,6e4);
