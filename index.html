@@ -440,6 +440,13 @@ html body .cdt .calc{font-size:14px;white-space:nowrap;overflow:visible}
 html body .cdt tfoot td:nth-child(2){display:table-cell}html body .cdt tfoot td:nth-child(3){display:table-cell}html body .cdt tfoot td:nth-child(4){display:none}
 html body .tltabs{flex-wrap:wrap;overflow:visible;gap:6px;padding:6px 12px}html body .tltabs button{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;margin:0}html body .tltabs button.on{border-color:#4da3ff;background:#1f3a5c;color:#fff}html body #tl>.card{margin-top:10px}
 html body input.wbad,html body .calc.wbad,html body select.wbad{border:2px solid #e5534b!important;box-shadow:0 0 0 3px #e5534b33}
+html body #refBox{margin:10px 12px 14px}html body #refBox details{border:1px solid #2c4058;border-radius:14px;background:#162130;padding:0}
+html body #refBox summary{cursor:pointer;padding:14px;font-weight:700;font-size:14px;color:#4da3ff;list-style:none}html body #refBox summary::-webkit-details-marker{display:none}
+html body #refBox .rf{padding:0 14px 14px;font-size:13px;color:#b4c3d6}html body #refBox .rf p{margin:0 0 10px}
+html body #refBox button{background:#1d6fa8;color:#fff;border:0;border-radius:10px;padding:11px 14px;font-weight:700;font-size:14px;cursor:pointer;width:100%}
+html body #refBox .rr{display:flex;gap:8px;margin-top:8px}html body #refBox .rr input{flex:1;min-width:0;height:44px;border-radius:10px;border:1px solid #2c4058;padding:0 10px;font-size:14px}html body #refBox .rr button{width:auto}
+html body #refBox .rn{font-size:12px;margin-top:8px}
+html body .tile select{font-size:13px;padding:0 4px;text-align-last:center}
 </style></head><body>
 <div class="bar"><button id="menuBtn" aria-label="Menu">☰</button><h1 id="ttl">QUICK DRAFT CALCULATION</h1></div>
 <div id="drawer"><div class="bk"></div><nav><h3>Menu</h3><div class="vnm" id="vnm"></div><button data-v="ds" class="on">Draft Survey</button><button data-v="sp">Ship's Particulars</button><button data-v="cap">Capacity Plan</button><button data-v="hy">Hydrostatic Table</button><button data-v="dwc">Deadweight Calculation</button><button data-v="qd">Daily Draft Calculation</button><button data-v="vp">Voyage Draft Plan</button><button data-v="trm">Trimming</button><button data-v="cd">Cargo Distribution (Fill %)</button><button data-v="rc">Remaining Cargo</button><button data-v="tl">Tools</button><div class="dsep"></div><button id="slotBtn">💾 Saved files (in app)</button><button id="bkp">⬇ Backup all data</button><button id="aboutBtn">About &amp; Privacy</button><label for="rstIn" class="dlab">⬆ Restore backup</label><input type="file" id="rstIn" style="position:absolute;opacity:0;width:1px;height:1px"></nav></div>
