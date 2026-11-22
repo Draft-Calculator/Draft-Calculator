@@ -460,6 +460,8 @@ html body .cdt td,html body .cdt th{padding:3px 3px}html body .cdt .calc{font-si
 html body .tltabs{padding:4px 10px;gap:5px}html body .tltabs button{padding:6px 11px;font-size:12.5px}
 html body table input,html body table .calc{min-height:30px;height:30px;font-size:13.5px}
 html body #refBox .rr input{height:36px}
+html body #ttl .ti{display:none!important}
+html body #llt td:first-child input{font-size:11.5px;padding:0 3px}
 </style></head><body>
 <div class="bar"><button id="menuBtn" aria-label="Menu">☰</button><h1 id="ttl">QUICK DRAFT CALCULATION</h1></div>
 <div id="drawer"><div class="bk"></div><nav><h3>Menu</h3><div class="vnm" id="vnm"></div><button data-v="ds" class="on">Draft Survey</button><button data-v="sp">Ship's Particulars</button><button data-v="cap">Capacity Plan</button><button data-v="hy">Hydrostatic Table</button><button data-v="dwc">Deadweight Calculation</button><button data-v="qd">Daily Draft Calculation</button><button data-v="vp">Voyage Draft Plan</button><button data-v="trm">Trimming</button><button data-v="cd">Cargo Distribution (Fill %)</button><button data-v="rc">Remaining Cargo</button><button data-v="tl">Tools</button><div class="dsep"></div><button id="slotBtn">💾 Saved files (in app)</button><button id="bkp">⬇ Backup all data</button><button id="aboutBtn">About &amp; Privacy</button><label for="rstIn" class="dlab">⬆ Restore backup</label><input type="file" id="rstIn" style="position:absolute;opacity:0;width:1px;height:1px"></nav></div>
@@ -537,7 +539,8 @@ html body #refBox .rr input{height:36px}
 <div class="tg c1"><div class="tile"><label>Your note (optional)</label><input id="dnote" placeholder="e.g. marks read from tug / draft mark photo"></div></div>
 </div>
 <div class="card"><h2>Drafts at perpendiculars</h2>
-<div class="tg c4 "><div class="tile "><label>Draft FP (m)</label><div class="calc" data-k="ds_fp">–</div></div><div class="tile "><label>Draft MP (m)</label><div class="calc" data-k="ds_mp">–</div></div><div class="tile "><label>Draft AP (m)</label><div class="calc" data-k="ds_ap">–</div></div><div class="tile "><label>Hull defl. (m)</label><div class="calc cen" data-k="ds_def">–</div></div></div>
+<div class="tg" style="grid-template-columns:repeat(3,1fr)"><div class="tile "><label>Draft FP (m)</label><div class="calc" data-k="ds_fp">–</div></div><div class="tile "><label>Draft MP (m)</label><div class="calc" data-k="ds_mp">–</div></div><div class="tile "><label>Draft AP (m)</label><div class="calc" data-k="ds_ap">–</div></div></div>
+<div class="tg c1"><div class="tile "><label>Hull deflection (m)</label><div class="calc cen" data-k="ds_def">–</div></div></div>
 </div>
 <div class="card"><h2>Ship condition</h2><div id="dsfig" class="vis"></div></div>
 <div class="card"><h2>Trim corrections (in order)</h2>
@@ -1301,7 +1304,7 @@ else{const s=x=>(x>=0?"+":"")+x.toFixed(1)+" t";msg=`${W>=0?"Load":"Discharge"} 
 $("trmsg").innerHTML=msg;
 $("trfig").innerHTML=trfig(hs,L,ia,ib,have?F:null,have?A:null,res,td,t0)}
 /* ---------- load line ---------- */
-const LLD=["Tropical fresh (TF)","Fresh water (F)","Summer (S)","Tropical (T)","Winter (W)"];
+const LLD=["Trop. FW (TF)","Fresh (F)","Summer (S)","Tropical (T)","Winter (W)"];
 const llRow=n=>`<tr><td><input value="${esc(n)}"></td><td><input type="number" step="0.001"></td><td><input type="number" step="0.001" placeholder="m"></td><td><input class="ro" readonly tabindex="-1"></td><td><input class="ro" readonly tabindex="-1"></td><td class="x"><button type="button" class="del llrm">×</button></td></tr>`;
 $("llt").innerHTML=LLD.map(llRow).join("");
 $("llAdd").onclick=()=>{$("llt").insertAdjacentHTML("beforeend",llRow(""));calc();save()};
@@ -1806,10 +1809,10 @@ $("ttl").onclick=()=>{const v=CURV;if(!GUIDE[v])return;const gi=N.findIndex(t=>t
 const APPV="1.0.0";
 $("aboutBtn").onclick=()=>{dr.classList.remove("open");pgOpen("About",`<div class="abt"><h4>Quick Draft Calculator</h4><p>Version ${APPV}. A set of calculators for ship officers: quick draft, draft survey, voyage draft plan, deadweight, trimming, cargo distribution and ship's particulars with a hydrostatic table.</p><h4>Important</h4><p>This is a planning and cross-check tool. It does not replace the ship's approved loading instrument, the class-approved stability software, the stability booklet, or the judgement of the Master and the officers. Check the results against the ship's own data before relying on them. The results depend on the data you enter, including the hydrostatic table.</p><h4>Privacy</h4><p>All entries, vessels, tables, notes and records are kept only on this device. The app has no account, no advertising, no tracking and sends no data anywhere. A backup file is made only when you tap Backup. Clearing the app data or uninstalling the app removes your data, so make a backup regularly.</p><h4>Licence</h4><p>The app is free to use for 2 months. After that a single one-time payment unlocks it for good. There is no subscription. Payment is handled by Google Play; the app never sees your card or account details.</p><h4>Units</h4><p>Metres, tonnes, nautical miles, knots and degrees Celsius. Mid G: − forward, + aft of midship. Trim: + by the stern. ZD: east −, west +.</p></div>`,false)};
 ["sp","qd","ds","vp","trm","cd","dwc","cap","rc","tl"].forEach(i=>{const e=$(i);if(e)e.classList.add("col2")});
-qdLink();vpLink();restore();QREADY=true;READY=true;
+qdLink();vpLink();restore();document.querySelectorAll("#groups tbody tr").forEach(tr=>{const w=tr.querySelector(".w");if(w&&(w.value===""||+w.value===0)){if(tr.dataset.tid)QHIDE.add(tr.dataset.tid);tr.remove()}});QREADY=true;READY=true;
 
 /* ---- v3: auto-fit values, swipe survey type, load-line order ---- */
-(function(){const SEL=".tile input:not([type=checkbox]):not([type=radio]):not([type=hidden]),.tile .calc,.vr .calc,.cmp .calc,.cmp input";let q=0;
+(function(){const SEL=".tile input:not([type=checkbox]):not([type=radio]):not([type=hidden]),.tile .calc,.vr .calc,.cmp .calc,.cmp input,#capg td input,#llt td input,#groups td .calc,#groups td input,#cd td input,#cd td .calc,#gw,#gf,#ga";let q=0;
 function fit(e){if(!e.offsetParent)return;const b=e.dataset.fs||(e.dataset.fs=parseFloat(getComputedStyle(e).fontSize));let f=+b;e.style.fontSize=f+"px";let n=0;while(e.scrollWidth>e.clientWidth+1&&f>9&&n++<14){f-=.5;e.style.fontSize=f+"px"}}
 function run(){q=0;document.querySelectorAll(SEL).forEach(fit)}
 function sched(){if(!q)q=requestAnimationFrame(run)}
